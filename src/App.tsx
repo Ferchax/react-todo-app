@@ -1,35 +1,81 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [model, setModel] = useState<TaskModel>({
+    task: '',
+    completed: false
+  });
+  const [tasks, setTasks] = useState<TaskModel[]>([]);
+  const [errors, setErrors] = useState({
+    task: false
+  });
+
+  function submitHandler(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if(model.task.trim()) {
+      addTask();
+      resetModel();
+    }
+  }
+
+  function addTask() {
+    console.log('addTask');
+    setTasks([...tasks, model]);
+  }
+
+  function resetModel() {
+    setModel({ task:'', completed:false });
+  }
+
+  function completed(item: TaskModel) {
+    console.log('completed');
+    const idx = tasks.indexOf(item);
+    setTasks(tasks.map((t, i) => i == idx ? { ...t, completed: !t.completed } : t));
+  }
+
+  function remove(item: TaskModel) {
+    console.log('remove');
+    const idx = tasks.indexOf(item);
+    setTasks(tasks.filter((item, i) => i != idx));
+  }
+
+  function onInputHandler(e:  React.ChangeEvent<HTMLInputElement>) {
+    const taskValue = (e.target as HTMLInputElement).value;
+    setModel({task:taskValue, completed:false});
+    setErrors({...errors, task:!taskValue.length})
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="main">
+      <h1>ToDo App</h1>
+
+      <form onSubmit={submitHandler} autoComplete="off">
+        <input type="text" name="task" placeholder="Add a task" autoFocus
+          onInput={onInputHandler} 
+          value={model.task} />
+        <button type="submit" disabled={!model.task.length}>Add</button>
+        { errors.task && <div className="error">Task is required</div> }
+      </form>
+  
+      <p>Things to do...</p>
+      <ul>
+        {
+          tasks.map((item, index) => 
+            <li key={index} className={item.completed ? 'completed' : ''}>
+              <span onClick={() => completed(item)} className="cursor">&#9989;</span> 
+              {item.task} 
+              <span onClick={() => remove(item)} className="cursor">&#10062;</span>
+            </li>)
+        }
+      </ul>
+    </div>
   )
+}
+
+interface TaskModel {
+  task: string,
+  completed: boolean
 }
 
 export default App
