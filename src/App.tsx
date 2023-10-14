@@ -21,7 +21,7 @@ function App() {
 
   function addTask() {
     console.log('addTask');
-    setTasks([...tasks, model]);
+    setTasks(prevTasks => [...prevTasks, model]);
   }
 
   function resetModel() {
@@ -31,13 +31,13 @@ function App() {
   function completed(item: TaskModel) {
     console.log('completed');
     const idx = tasks.indexOf(item);
-    setTasks(tasks.map((t, i) => i == idx ? { ...t, completed: !t.completed } : t));
+    setTasks(prevTasks => prevTasks.map((task, i) => i == idx ? { ...task, completed: !task.completed } : task));
   }
 
   function remove(item: TaskModel) {
     console.log('remove');
     const idx = tasks.indexOf(item);
-    setTasks(tasks.filter((item, i) => i != idx));
+    setTasks(prevTasks => prevTasks.filter((item, i) => i != idx));
   }
 
   function onInputHandler(e:  React.ChangeEvent<HTMLInputElement>) {
